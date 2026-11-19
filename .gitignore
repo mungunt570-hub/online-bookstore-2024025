@@ -165,3 +165,16 @@ dist
 .env*
 !.env.example
 .wrangler/
+
+# Cloudflare
+.dev.vars
+.wrangler/
+# OpenClaw workspace files (AGENTS.md is committed)
+SOUL.md
+USER.md
+IDENTITY.md
+TOOLS.md
+HEARTBEAT.md
+BOOTSTRAP.md
+MEMORY.md
+memory/
