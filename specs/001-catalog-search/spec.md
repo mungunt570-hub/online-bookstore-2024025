@@ -8,6 +8,19 @@
 
 **Input**: User description: "Book Catalog and Book Search. Customers can list books, view one book, and search books by title or author. Search is case-insensitive. Return at most 10 books. No match returns an empty list. Do not implement code yet. Write testable acceptance criteria."
 
+## Clarifications
+
+### Session 2026-11-24
+
+- Q: When more than 10 books match a search, how should the 10 returned books be selected? → A:
+  Sort by title A–Z, then book identifier, and return the first 10.
+- Q: What response body should accompany HTTP 400 when the search query is empty? → A: Return
+  `{ "error": { "code": "EMPTY_QUERY", "message": "Search query is required." } }`.
+- Q: Which fields should each book in a search response contain? → A: Book identifier, title,
+  author name, and integer `price_cents`.
+- Q: Should integer `price_cents` replace the generic `price` field in every book response or only
+  in search results? → A: Use integer `price_cents` in catalog, search, and book-detail responses.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Browse the Book Catalog (Priority: P1)
@@ -27,7 +40,7 @@ each available book is represented once with the summary information needed to i
 2. **Given** the catalog contains no available books, **When** a customer lists the catalog,
    **Then** the customer receives an empty list.
 3. **Given** a catalog result, **When** the customer examines each entry, **Then** each entry
-   contains the book identifier, title, author name, and price.
+   contains the book identifier, title, author name, and integer `price_cents`.
 
 ---
 
@@ -45,8 +58,8 @@ outcome.
 **Acceptance Scenarios**:
 
 1. **Given** a book exists, **When** a customer requests that book by its identifier, **Then** the
-   customer receives that book's identifier, title, author name, description, price, and
-   availability status.
+   customer receives that book's identifier, title, author name, description, integer
+   `price_cents`, and availability status.
 2. **Given** no book has the requested identifier, **When** a customer requests it, **Then** the
    customer receives a clear not-found outcome and no different book is returned.
 
@@ -70,14 +83,20 @@ matching set and result limit.
 - **AC-SEARCH-02**: Searching "DATABASE" returns the same results.
 - **AC-SEARCH-03**: Searching "unknown-book-xyz" returns `[]`.
 - **AC-SEARCH-04**: The response never contains more than 10 books.
-- **AC-SEARCH-05**: An empty query returns HTTP 400.
+- **AC-SEARCH-05**: An empty query returns HTTP 400 with
+  `{ "error": { "code": "EMPTY_QUERY", "message": "Search query is required." } }`.
 - **AC-SEARCH-06**: A book matching both its title and author appears only once in the response.
+- **AC-SEARCH-07**: When more than 10 books match, results are sorted by title A–Z and then by
+  book identifier; only the first 10 are returned.
+- **AC-SEARCH-08**: Every returned book contains its identifier, title, author name, and integer
+  `price_cents`.
 
 ### Edge Cases
 
 - A book that matches in both its title and author name appears only once.
 - Two distinct books with the same title remain separate results because their identifiers differ.
 - Search remains case-insensitive when the stored text and search term use different letter cases.
+- Books with identical titles are ordered by book identifier before the 10-result limit is applied.
 - Catalog listing returns an empty list when the catalog has no available books.
 - An unknown book identifier produces a not-found outcome rather than an empty or unrelated book.
 - Search never returns an unavailable book, even when its title or author matches.
@@ -87,25 +106,31 @@ matching set and result limit.
 ### Functional Requirements
 
 - **FR-001**: The system MUST allow customers to list all available books in the catalog.
-- **FR-002**: Each catalog entry MUST include the book identifier, title, author name, and price.
+- **FR-002**: Each catalog entry MUST include the book identifier, title, author name, and integer
+  `price_cents`.
 - **FR-003**: The system MUST allow a customer to view one book using its identifier.
 - **FR-004**: A book detail result MUST include the identifier, title, author name, description,
-  price, and availability status.
+  integer `price_cents`, and availability status.
 - **FR-005**: The system MUST return a clear not-found outcome when the requested book does not
   exist.
 - **FR-006**: The system MUST allow customers to search available books using title or author text.
 - **FR-007**: Search MUST match when the search text occurs anywhere within a title or author name.
 - **FR-008**: Search comparisons MUST be case-insensitive.
-- **FR-009**: Search MUST return no more than 10 books.
+- **FR-009**: Search MUST sort matches by title A–Z, then by book identifier, and return the first
+  10 books.
 - **FR-010**: Search MUST return an empty list when no books match.
-- **FR-011**: Search MUST return HTTP 400 when the query is empty.
+- **FR-011**: Search MUST return HTTP 400 with
+  `{ "error": { "code": "EMPTY_QUERY", "message": "Search query is required." } }` when the query
+  is empty.
 - **FR-012**: A book that matches both title and author MUST appear only once in a search result.
 - **FR-013**: Catalog and search results MUST include only books currently available to customers.
+- **FR-014**: Each search result MUST include the book identifier, title, author name, and integer
+  `price_cents`.
 
 ### Key Entities *(include if feature involves data)*
 
 - **Book**: A catalog item identified by a unique book identifier, with a title, author,
-  description, price, and availability status.
+  description, integer `price_cents`, and availability status.
 - **Author**: The person credited for one or more books; the displayed author name is searchable.
 
 ## Success Criteria *(mandatory)*
@@ -116,14 +141,18 @@ matching set and result limit.
   for 100% of available books in the acceptance dataset.
 - **SC-002**: Every case-variation of a known title or author query returns the same matching set in
   the acceptance dataset.
-- **SC-003**: Every successful search response contains between 0 and 10 distinct books, inclusive.
+- **SC-003**: Every successful search response contains between 0 and 10 distinct books, sorted by
+  title A–Z and then book identifier before the 10-result limit is applied.
 - **SC-004**: Searches with no matching title or author return an empty list in 100% of acceptance
   tests.
-- **SC-005**: Empty-query searches return HTTP 400 in 100% of acceptance tests.
+- **SC-005**: Empty-query searches return HTTP 400 with error code `EMPTY_QUERY` and message
+  `Search query is required.` in 100% of acceptance tests.
 - **SC-006**: At least 95% of catalog, detail, and search requests show the customer a complete
   result or clear empty/not-found outcome within 2 seconds under the agreed acceptance workload.
 - **SC-007**: At least 90% of representative users can find a known book by browsing or searching
   and open its details on their first attempt without assistance.
+- **SC-008**: Every catalog, search, and book-detail response containing a price represents it as
+  integer `price_cents` in 100% of acceptance tests.
 
 ## Assumptions
 
@@ -131,15 +160,14 @@ matching set and result limit.
   books because no catalog limit was requested.
 - Search uses partial-text matching within title and author name rather than exact matching.
 - An empty search is invalid and returns HTTP 400 rather than catalog results.
-- Whitespace handling is intentionally unspecified and will be addressed through a separate
-  specification change.
 - Only books marked available are customer-visible in catalog and search results.
-- Catalog administration, sorting, filtering, pagination, recommendations, purchasing, and search
-  relevance ranking are outside this feature's scope.
+- Catalog administration, customer-selected sorting, filtering, pagination, recommendations,
+  purchasing, and search relevance ranking are outside this feature's scope.
 
 ## Specification Change Record
 
 - **2026-11-24**: Renamed the feature directory to `001-catalog-search`; added explicit
-  AC-SEARCH-01 through AC-SEARCH-05; changed empty-query behavior from an empty list to HTTP 400;
-  deferred trimming and whitespace-only behavior to a separate specification change. No application
-  code was changed.
+  AC-SEARCH-01 through AC-SEARCH-05; and changed empty-query behavior from an empty list to HTTP 400.
+- **2026-11-24**: Clarified deterministic search ordering, the empty-query error response, search
+  result fields, and consistent integer `price_cents` representation across book responses. No
+  application code was changed.

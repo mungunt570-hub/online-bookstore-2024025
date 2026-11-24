@@ -33,6 +33,8 @@
 
 - Validation iteration 1 passed all checklist items.
 - Validation iteration 2 passed after adding AC-SEARCH-01 through AC-SEARCH-05, changing empty-query
-  behavior to HTTP 400, and explicitly deferring whitespace handling.
+  behavior to HTTP 400.
+- Validation iteration 3 passed after clarifying deterministic search ordering, the exact
+  empty-query error response, response fields, and consistent integer `price_cents` representation.
 - No clarification markers were required; unspecified behavior is documented in Assumptions.
 - No application code or tests were created or modified.
