@@ -1,6 +1,6 @@
 # Feature Specification: Book Catalog and Search
 
-**Feature Branch**: `001-book-catalog-search`
+**Feature Branch**: `001-catalog-search`
 
 **Created**: 2026-11-24
 
@@ -66,20 +66,12 @@ matching set and result limit.
 
 **Acceptance Scenarios**:
 
-1. **Given** a book title contains "The Hobbit", **When** a customer searches for "hobbit",
-   **Then** that book appears in the results.
-2. **Given** an author is named "Ursula K. Le Guin", **When** a customer searches for "LE GUIN",
-   **Then** books by that author appear in the results.
-3. **Given** books match the search text in either title or author name, **When** a customer searches,
-   **Then** each matching book appears no more than once.
-4. **Given** more than 10 books match the search text, **When** a customer searches, **Then** no more
-   than 10 books are returned.
-5. **Given** no title or author matches the search text, **When** a customer searches, **Then** an
-   empty list is returned.
-6. **Given** a search term has leading or trailing whitespace, **When** a customer searches,
-   **Then** the whitespace is ignored and results match the trimmed term.
-7. **Given** a search term is empty or contains only whitespace, **When** a customer searches,
-   **Then** an empty list is returned.
+- **AC-SEARCH-01**: Searching "database" returns books whose title or author matches.
+- **AC-SEARCH-02**: Searching "DATABASE" returns the same results.
+- **AC-SEARCH-03**: Searching "unknown-book-xyz" returns `[]`.
+- **AC-SEARCH-04**: The response never contains more than 10 books.
+- **AC-SEARCH-05**: An empty query returns HTTP 400.
+- **AC-SEARCH-06**: A book matching both its title and author appears only once in the response.
 
 ### Edge Cases
 
@@ -104,12 +96,11 @@ matching set and result limit.
 - **FR-006**: The system MUST allow customers to search available books using title or author text.
 - **FR-007**: Search MUST match when the search text occurs anywhere within a title or author name.
 - **FR-008**: Search comparisons MUST be case-insensitive.
-- **FR-009**: Search MUST ignore leading and trailing whitespace in the supplied term.
-- **FR-010**: Search MUST return no more than 10 books.
-- **FR-011**: Search MUST return an empty list when no books match.
-- **FR-012**: Search MUST return an empty list for an empty or whitespace-only term.
-- **FR-013**: A book that matches both title and author MUST appear only once in a search result.
-- **FR-014**: Catalog and search results MUST include only books currently available to customers.
+- **FR-009**: Search MUST return no more than 10 books.
+- **FR-010**: Search MUST return an empty list when no books match.
+- **FR-011**: Search MUST return HTTP 400 when the query is empty.
+- **FR-012**: A book that matches both title and author MUST appear only once in a search result.
+- **FR-013**: Catalog and search results MUST include only books currently available to customers.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -125,12 +116,13 @@ matching set and result limit.
   for 100% of available books in the acceptance dataset.
 - **SC-002**: Every case-variation of a known title or author query returns the same matching set in
   the acceptance dataset.
-- **SC-003**: Every search returns between 0 and 10 distinct books, inclusive.
+- **SC-003**: Every successful search response contains between 0 and 10 distinct books, inclusive.
 - **SC-004**: Searches with no matching title or author return an empty list in 100% of acceptance
   tests.
-- **SC-005**: At least 95% of catalog, detail, and search requests show the customer a complete
+- **SC-005**: Empty-query searches return HTTP 400 in 100% of acceptance tests.
+- **SC-006**: At least 95% of catalog, detail, and search requests show the customer a complete
   result or clear empty/not-found outcome within 2 seconds under the agreed acceptance workload.
-- **SC-006**: At least 90% of representative users can find a known book by browsing or searching
+- **SC-007**: At least 90% of representative users can find a known book by browsing or searching
   and open its details on their first attempt without assistance.
 
 ## Assumptions
@@ -138,8 +130,16 @@ matching set and result limit.
 - The 10-book maximum applies to search results; the catalog-listing feature returns all available
   books because no catalog limit was requested.
 - Search uses partial-text matching within title and author name rather than exact matching.
-- Leading and trailing whitespace is not meaningful search text.
-- An empty search is not treated as a catalog-listing request; it returns an empty list.
+- An empty search is invalid and returns HTTP 400 rather than catalog results.
+- Whitespace handling is intentionally unspecified and will be addressed through a separate
+  specification change.
 - Only books marked available are customer-visible in catalog and search results.
 - Catalog administration, sorting, filtering, pagination, recommendations, purchasing, and search
   relevance ranking are outside this feature's scope.
+
+## Specification Change Record
+
+- **2026-11-24**: Renamed the feature directory to `001-catalog-search`; added explicit
+  AC-SEARCH-01 through AC-SEARCH-05; changed empty-query behavior from an empty list to HTTP 400;
+  deferred trimming and whitespace-only behavior to a separate specification change. No application
+  code was changed.

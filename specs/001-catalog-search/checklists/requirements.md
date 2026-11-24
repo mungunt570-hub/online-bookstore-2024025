@@ -32,5 +32,7 @@
 ## Notes
 
 - Validation iteration 1 passed all checklist items.
+- Validation iteration 2 passed after adding AC-SEARCH-01 through AC-SEARCH-05, changing empty-query
+  behavior to HTTP 400, and explicitly deferring whitespace handling.
 - No clarification markers were required; unspecified behavior is documented in Assumptions.
 - No application code or tests were created or modified.
