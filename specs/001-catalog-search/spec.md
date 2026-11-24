@@ -91,6 +91,8 @@ matching set and result limit.
   book identifier; only the first 10 are returned.
 - **AC-SEARCH-09**: Every returned book contains its identifier, title, author name, and integer
   `price_cents`.
+- **AC-SEARCH-10**: Searching with a spaces-only query returns HTTP 400 with
+  `{ "error": { "code": "EMPTY_QUERY", "message": "Search query is required." } }`.
 
 ### Edge Cases
 
@@ -98,6 +100,8 @@ matching set and result limit.
 - Two distinct books with the same title remain separate results because their identifiers differ.
 - Search remains case-insensitive when the stored text and search term use different letter cases.
 - Leading and trailing whitespace in a non-empty search query is removed before matching.
+- A query that is empty after trimming leading and trailing whitespace returns the same HTTP 400
+  `EMPTY_QUERY` response as a truly empty query.
 - Books with identical titles are ordered by book identifier before the 10-result limit is applied.
 - Catalog listing returns an empty list when the catalog has no available books.
 - An unknown book identifier produces a not-found outcome rather than an empty or unrelated book.
@@ -130,6 +134,9 @@ matching set and result limit.
   `price_cents`.
 - **FR-SEARCH-06**: Search MUST trim leading and trailing whitespace from a non-empty query before
   matching titles or authors.
+- **FR-SEARCH-07**: Search MUST return HTTP 400 with
+  `{ "error": { "code": "EMPTY_QUERY", "message": "Search query is required." } }` when the
+  query is empty after trimming leading and trailing whitespace.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -160,6 +167,8 @@ matching set and result limit.
 - **SC-009**: A non-empty search query with leading or trailing whitespace returns the same ordered
   and capped result set as the same query without surrounding whitespace in 100% of acceptance
   tests.
+- **SC-010**: Queries that are empty after trimming return HTTP 400 with error code `EMPTY_QUERY`
+  and message `Search query is required.` in 100% of acceptance tests.
 
 ## Assumptions
 
@@ -180,3 +189,5 @@ matching set and result limit.
   application code was changed.
 - **2026-11-24**: Approved CHG-001 to trim leading and trailing whitespace from non-empty search
   queries and add acceptance coverage for equivalent spaced and unspaced queries.
+- **2026-11-24**: Approved CHG-002 to treat queries that are empty after trimming as empty queries
+  and return the existing HTTP 400 `EMPTY_QUERY` response.
