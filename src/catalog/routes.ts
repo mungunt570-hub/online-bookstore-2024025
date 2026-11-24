@@ -12,7 +12,7 @@ export async function handleCatalogRequest(request: Request, env: AppEnv): Promi
 		if (query === null || query === '') {
 			return json({ error: { code: 'EMPTY_QUERY', message: 'Search query is required.' } }, 400);
 		}
-		return json(await searchAvailableBooks(env.DB, query));
+		return json(await searchAvailableBooks(env.DB, query.trim()));
 	}
 
 	if (url.pathname === '/api/books') return json(await listAvailableBooks(env.DB));

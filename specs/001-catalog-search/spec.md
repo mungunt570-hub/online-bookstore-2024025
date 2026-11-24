@@ -85,10 +85,11 @@ matching set and result limit.
 - **AC-SEARCH-04**: The response never contains more than 10 books.
 - **AC-SEARCH-05**: An empty query returns HTTP 400 with
   `{ "error": { "code": "EMPTY_QUERY", "message": "Search query is required." } }`.
-- **AC-SEARCH-06**: A book matching both its title and author appears only once in the response.
-- **AC-SEARCH-07**: When more than 10 books match, results are sorted by title A–Z and then by
+- **AC-SEARCH-06**: Searching " database " returns the same results as searching "database".
+- **AC-SEARCH-07**: A book matching both its title and author appears only once in the response.
+- **AC-SEARCH-08**: When more than 10 books match, results are sorted by title A–Z and then by
   book identifier; only the first 10 are returned.
-- **AC-SEARCH-08**: Every returned book contains its identifier, title, author name, and integer
+- **AC-SEARCH-09**: Every returned book contains its identifier, title, author name, and integer
   `price_cents`.
 
 ### Edge Cases
@@ -96,6 +97,7 @@ matching set and result limit.
 - A book that matches in both its title and author name appears only once.
 - Two distinct books with the same title remain separate results because their identifiers differ.
 - Search remains case-insensitive when the stored text and search term use different letter cases.
+- Leading and trailing whitespace in a non-empty search query is removed before matching.
 - Books with identical titles are ordered by book identifier before the 10-result limit is applied.
 - Catalog listing returns an empty list when the catalog has no available books.
 - An unknown book identifier produces a not-found outcome rather than an empty or unrelated book.
@@ -126,6 +128,8 @@ matching set and result limit.
 - **FR-013**: Catalog and search results MUST include only books currently available to customers.
 - **FR-014**: Each search result MUST include the book identifier, title, author name, and integer
   `price_cents`.
+- **FR-SEARCH-06**: Search MUST trim leading and trailing whitespace from a non-empty query before
+  matching titles or authors.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -153,6 +157,9 @@ matching set and result limit.
   and open its details on their first attempt without assistance.
 - **SC-008**: Every catalog, search, and book-detail response containing a price represents it as
   integer `price_cents` in 100% of acceptance tests.
+- **SC-009**: A non-empty search query with leading or trailing whitespace returns the same ordered
+  and capped result set as the same query without surrounding whitespace in 100% of acceptance
+  tests.
 
 ## Assumptions
 
@@ -171,3 +178,5 @@ matching set and result limit.
 - **2026-11-24**: Clarified deterministic search ordering, the empty-query error response, search
   result fields, and consistent integer `price_cents` representation across book responses. No
   application code was changed.
+- **2026-11-24**: Approved CHG-001 to trim leading and trailing whitespace from non-empty search
+  queries and add acceptance coverage for equivalent spaced and unspaced queries.
