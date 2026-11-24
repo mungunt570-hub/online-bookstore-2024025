@@ -29,7 +29,7 @@ search, release operations, and unrelated extensions are outside this task list.
 
 **Purpose**: Establish the feature and test directories without changing runtime behavior.
 
-- [ ] T001 Create the planned catalog, database-type, and catalog-test directories at `src/catalog/`, `src/db/`, and `test/catalog/`
+- [X] T001 Create the planned catalog, database-type, and catalog-test directories at `src/catalog/`, `src/db/`, and `test/catalog/`
 
 ---
 
@@ -39,12 +39,12 @@ search, release operations, and unrelated extensions are outside this task list.
 
 **⚠️ CRITICAL**: Complete this phase before starting any user story.
 
-- [ ] T002 Create `migrations/0001_initial.sql` for `categories`, `books`, `customers`, `orders`, `order_items`, and `order_events`, implementing every PK, FK, UNIQUE, and CHECK rule from `data-model.md`: `categories.name`; `books.category_id`, `books.title`, `books.author`, `books.description`, `books.price_cents`, `books.stock`; `customers.name`, `customers.email`; `orders.customer_id`, `orders.request_key`, `orders.created_at`; `order_items.order_id`, `order_items.book_id`, `order_items.quantity`, `order_items.unit_price_cents`; and `order_events.order_id`, `order_events.sequence`, `order_events.event_type`, `order_events.occurred_at`
-- [ ] T003 Create deterministic sample categories and available books for catalog and AC-SEARCH-01 through AC-SEARCH-05 in `sql/seed.sql`, using integer `price_cents` values and enough matching books to exercise the 10-result cap
-- [ ] T004 [P] Define the D1 binding and database row types required by the six-table schema in `src/db/types.ts`, citing the canonical field definitions in `specs/001-catalog-search/data-model.md`
-- [ ] T005 [P] Define catalog-list, category-list, book-detail, search-result, not-found, and `EMPTY_QUERY` response types in `src/catalog/types.ts`
-- [ ] T006 Create the catalog request handler boundary and connect the Worker entry point to it in `src/catalog/routes.ts` and `src/index.ts`, without implementing story-specific endpoint behavior
-- [ ] T007 Create reusable local-D1 reset and seed helpers for acceptance tests in `test/catalog/helpers.ts`, applying `migrations/0001_initial.sql` and `sql/seed.sql`
+- [X] T002 Create `migrations/0001_initial.sql` for `categories`, `books`, `customers`, `orders`, `order_items`, and `order_events`, implementing every PK, FK, UNIQUE, and CHECK rule from `data-model.md`: `categories.name`; `books.category_id`, `books.title`, `books.author`, `books.description`, `books.price_cents`, `books.stock`; `customers.name`, `customers.email`; `orders.customer_id`, `orders.request_key`, `orders.created_at`; `order_items.order_id`, `order_items.book_id`, `order_items.quantity`, `order_items.unit_price_cents`; and `order_events.order_id`, `order_events.sequence`, `order_events.event_type`, `order_events.occurred_at`
+- [X] T003 Create deterministic sample categories and available books for catalog and AC-SEARCH-01 through AC-SEARCH-05 in `sql/seed.sql`, using integer `price_cents` values and enough matching books to exercise the 10-result cap
+- [X] T004 [P] Define the D1 binding and database row types required by the six-table schema in `src/db/types.ts`, citing the canonical field definitions in `specs/001-catalog-search/data-model.md`
+- [X] T005 [P] Define catalog-list, category-list, book-detail, search-result, not-found, and `EMPTY_QUERY` response types in `src/catalog/types.ts`
+- [X] T006 Create the catalog request handler boundary and connect the Worker entry point to it in `src/catalog/routes.ts` and `src/index.ts`, without implementing story-specific endpoint behavior
+- [X] T007 Create reusable local-D1 reset and seed helpers for acceptance tests in `test/catalog/helpers.ts`, applying `migrations/0001_initial.sql` and `sql/seed.sql`
 
 **Checkpoint**: The six-table schema, sample data, Worker routing boundary, and test fixture are ready.
 
@@ -60,8 +60,8 @@ the seeded categories. An empty catalog produces an empty book list.
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implement parameterized D1 reads for available books and categories in `src/catalog/repository.ts`, using `books.stock` from `data-model.md` as the availability source and mapping `books.id`, `books.title`, `books.author`, and `books.price_cents`
-- [ ] T009 [US1] Implement `GET /api/books` and `GET /api/categories` response handling in `src/catalog/routes.ts`
+- [X] T008 [US1] Implement parameterized D1 reads for available books and categories in `src/catalog/repository.ts`, using `books.stock` from `data-model.md` as the availability source and mapping `books.id`, `books.title`, `books.author`, and `books.price_cents`
+- [X] T009 [US1] Implement `GET /api/books` and `GET /api/categories` response handling in `src/catalog/routes.ts`
 
 **Checkpoint**: Catalog and category listing work independently of detail and search behavior.
 
@@ -76,8 +76,8 @@ the seeded categories. An empty catalog produces an empty book list.
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Implement the parameterized available-book-by-ID read in `src/catalog/repository.ts`, mapping `books.id`, `books.title`, `books.author`, `books.description`, `books.price_cents`, and availability derived from `books.stock` as defined in `data-model.md`
-- [ ] T011 [US2] Implement `GET /api/books/:id` and its not-found response in `src/catalog/routes.ts`, ensuring the fixed `/api/books/search` path is routed before the `:id` path
+- [X] T010 [US2] Implement the parameterized available-book-by-ID read in `src/catalog/repository.ts`, mapping `books.id`, `books.title`, `books.author`, `books.description`, `books.price_cents`, and availability derived from `books.stock` as defined in `data-model.md`
+- [X] T011 [US2] Implement `GET /api/books/:id` and its not-found response in `src/catalog/routes.ts`, ensuring the fixed `/api/books/search` path is routed before the `:id` path
 
 **Checkpoint**: Book detail works independently with known and unknown identifiers.
 
@@ -93,16 +93,16 @@ test after first being observed failing before implementation.
 
 ### Acceptance Tests for User Story 3
 
-- [ ] T012 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-01 (`q=database` matches book title or author) in `test/catalog/search.ac-search-01.spec.ts`
-- [ ] T013 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-02 (`q=DATABASE` returns the same results as `q=database`) in `test/catalog/search.ac-search-02.spec.ts`
-- [ ] T014 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-03 (`q=unknown-book-xyz` returns `[]`) in `test/catalog/search.ac-search-03.spec.ts`
-- [ ] T015 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-04 (a successful search never returns more than 10 books) in `test/catalog/search.ac-search-04.spec.ts`
-- [ ] T016 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-05 (a truly empty `q` returns HTTP 400 with the exact `EMPTY_QUERY` body) in `test/catalog/search.ac-search-05.spec.ts`
+- [X] T012 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-01 (`q=database` matches book title or author) in `test/catalog/search.ac-search-01.spec.ts`
+- [X] T013 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-02 (`q=DATABASE` returns the same results as `q=database`) in `test/catalog/search.ac-search-02.spec.ts`
+- [X] T014 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-03 (`q=unknown-book-xyz` returns `[]`) in `test/catalog/search.ac-search-03.spec.ts`
+- [X] T015 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-04 (a successful search never returns more than 10 books) in `test/catalog/search.ac-search-04.spec.ts`
+- [X] T016 [P] [US3] Add exactly one failing Vitest test for AC-SEARCH-05 (a truly empty `q` returns HTTP 400 with the exact `EMPTY_QUERY` body) in `test/catalog/search.ac-search-05.spec.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Implement the bound-parameter title/author search in `src/catalog/repository.ts`, returning only available books, sorting by title A–Z then `books.id`, limiting results to 10, and mapping `books.id`, `books.title`, `books.author`, and `books.price_cents` from `data-model.md`
-- [ ] T018 [US3] Implement `GET /api/books/search?q=` in `src/catalog/routes.ts`, including the exact HTTP 400 `EMPTY_QUERY` response for an empty query and an empty array for no matches
+- [X] T017 [US3] Implement the bound-parameter title/author search in `src/catalog/repository.ts`, returning only available books, sorting by title A–Z then `books.id`, limiting results to 10, and mapping `books.id`, `books.title`, `books.author`, and `books.price_cents` from `data-model.md`
+- [X] T018 [US3] Implement `GET /api/books/search?q=` in `src/catalog/routes.ts`, including the exact HTTP 400 `EMPTY_QUERY` response for an empty query and an empty array for no matches
 
 **Checkpoint**: All five requested search acceptance tests pass independently and together.
 
@@ -112,8 +112,8 @@ test after first being observed failing before implementation.
 
 **Purpose**: Prove schema integrity and feature behavior with reproducible local evidence.
 
-- [ ] T019 Validate `migrations/0001_initial.sql` and `sql/seed.sql` against local D1, verifying all six tables plus PK, FK, CHECK, and UNIQUE enforcement, and record the commands and results in `specs/001-catalog-search/evidence.md`
-- [ ] T020 Run the complete Vitest suite, confirm exactly one test covers each of AC-SEARCH-01 through AC-SEARCH-05, and record the command and passing result in `specs/001-catalog-search/evidence.md`
+- [X] T019 Validate `migrations/0001_initial.sql` and `sql/seed.sql` against local D1, verifying all six tables plus PK, FK, CHECK, and UNIQUE enforcement, and record the commands and results in `specs/001-catalog-search/evidence.md`
+- [X] T020 Run the complete Vitest suite, confirm exactly one test covers each of AC-SEARCH-01 through AC-SEARCH-05, and record the command and passing result in `specs/001-catalog-search/evidence.md`
 
 ---
 

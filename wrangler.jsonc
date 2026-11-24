@@ -16,7 +16,7 @@
 			"binding": "DB",
 			"database_name": "bookstore-db",
 			"database_id": "b61f72c7-c814-4615-91f0-656a6065418e",
-			"remote": true
+			"remote": false
 		}
 	]
 	/**
